@@ -1,0 +1,94 @@
+---
+# tasks file for site_ebook
+
+- name: Create website directory
+  file:
+    path: "{{ websites_path }}"
+    state: directory
+
+- name: download site_ebook repo
+  git:
+    repo: https://github.com/spineki/ECHOES.git
+    dest: "{{website_path}}"
+
+- name: install virtualenv
+  become: yes
+  become_user: root
+  pip:
+    executable: pip3
+    name: virtualenv
+
+- name: install dependencies in a virtualenv
+  pip:
+    virtualenv_python: python3
+    requirements: "{{website_path}}/requirements.txt"
+    virtualenv: "{{website_path}}/venv"
+
+- name: creating config website file
+  command: cp "{{website_path}}/app/config/config-example.cfg" "{{website_path}}/app/config/config.cfg"
+
+- name: configuring file
+  ansible.builtin.lineinfile:
+    path: "{{website_path}}/app/config/config.cfg"
+    regexp: '^BOOK_LOCATION ='
+    line: "BOOK_LOCATION = \"{{library_path}}\""
+
+- name: configuring file
+  ansible.builtin.lineinfile:
+    path: "{{website_path}}/app/config/config.cfg"
+    regexp: '^IP_ADDRESS='
+    line: "IP_ADDRESS='{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}'"
+
+
+- name: installing calibre
+  become: yes
+  apt:
+    name: calibre
+    update_cache: yes
+
+- name: launching calibre to create config file
+  command: calibredb --version
+
+- name: configuring Hard drive location
+  ansible.builtin.lineinfile:
+    path: "{{ calibre_config }}"
+    regexp: '^library_path ='
+    line: "library_path = u'{{ library_path }}'"
+
+
+- name: configuring language
+  ansible.builtin.lineinfile:
+    path: "{{ calibre_config }}"
+    regexp: '^language ='
+    line: language = 'fr'
+
+- name: creating and setting a sytemd file to load the website
+  become: yes
+  ansible.builtin.template:
+    src: systemd.j2
+    dest: /etc/systemd/system/site_ebook.service
+
+- name: Restarting systemd
+  become: yes
+  ansible.builtin.systemd:
+    daemon_reload: yes
+    name: site_ebook.service
+
+- name: enabling systemd
+  become: yes
+  ansible.builtin.systemd:
+    enabled: yes
+    name: site_ebook.service
+
+- name: restarting service
+  become: yes
+  ansible.builtin.systemd:
+    state: restarted
+    name: site_ebook.service
+
+
+
+
+
+# calibredb
+

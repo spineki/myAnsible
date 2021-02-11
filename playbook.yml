@@ -1,0 +1,5 @@
+---
+
+- hosts: rpi
+  roles:
+    - { role: site_ebook, tags: site_ebook}

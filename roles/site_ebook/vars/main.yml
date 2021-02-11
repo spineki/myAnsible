@@ -1,0 +1,6 @@
+---
+# vars file for site_ebook
+websites_path: /home/pi/websites
+website_path: /home/pi/websites/Echoes
+library_path: /media/pi/SAMSUNG/livres_marras
+calibre_config: /home/pi/.config/calibre/global.py

@@ -1,0 +1,15 @@
+[Unit]
+Description= A script to launch at start up my ebook website
+After=network.target
+StartLimitInterval=200
+StartLimitBurst=5
+
+
+[Service]
+Restart=always
+RestartSec=30
+Type=idle
+ExecStart={{ website_path }}/venv/bin/python {{ website_path }}/app/app.py >> {{ website_path }}/logs.txt 2>&1
+
+[Install]
+WantedBy=multi-user.target

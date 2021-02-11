@@ -1,0 +1,3 @@
+[rpi]
+rpi3b ansible_user=pi ansible_host=192.168.1.38 ansible_ssh_port=22 
+rpi4 ansible_user=pi ansible_host=192.168.1.44 ansible_ssh_port=22 
